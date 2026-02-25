@@ -75,6 +75,29 @@ Ensure Docker is installed.
 
 Run the following:
 
-```bash
 chmod +x start.sh
 ./start.sh
+
+## Sample API Requests
+
+### 1. Create Account
+
+curl -X POST http://localhost:8085/api/v1/accounts \
+-H "Content-Type: application/json" \
+-d '{
+  "document_number": "12345678900"
+}'
+
+### 2. get account by account id
+curl -X GET http://localhost:8085/api/v1/accounts/1
+
+### 3. create transaction with idempotency 
+
+curl -X POST http://localhost:8085/api/v1/transactions \
+-H "Content-Type: application/json" \
+-d '{
+"account_id": 1,
+"operation_type": "PURCHASE",
+"amount": 100.00,
+"idempotency_key": "11111111-1111-1111-1111-111111111111"
+}'

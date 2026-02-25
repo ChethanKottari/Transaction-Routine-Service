@@ -5,7 +5,6 @@ import com.pismo.transactionroutine.DTO.TransactionResponse;
 import com.pismo.transactionroutine.Enum.OperationTypeMapper;
 import com.pismo.transactionroutine.exception.AccountNotFoundException;
 import com.pismo.transactionroutine.models.Account;
-import com.pismo.transactionroutine.models.OperationType;
 import com.pismo.transactionroutine.models.Transaction;
 import com.pismo.transactionroutine.repository.AccountRepository;
 import com.pismo.transactionroutine.repository.TransactionRepository;
@@ -28,7 +27,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     public TransactionResponse create(TransactionRequest request) {
 
-        // step 1 — idempotency check
+        //  idempotency check
         Optional<Transaction> existing =
                 transactionRepository
                         .findByIdempotencyKey(
@@ -45,21 +44,20 @@ public class TransactionServiceImpl implements TransactionService {
                                 request.getAccountId()));
 
 
-        // step 3 — validate and resolve operation type
+
         int operationId =
                 OperationTypeMapper
                         .fromString(
                                 request.getOperationType())
                         .getId();
 
-        // step 4 — apply sign rule
+
         BigDecimal signedAmount =
                 applySign(
                         request.getAmount(),
                         operationId);
 
 
-        // step 5 — build transaction
 
         Transaction transaction =
                 Transaction.builder()
@@ -70,14 +68,14 @@ public class TransactionServiceImpl implements TransactionService {
                         .operationId(operationId)
                         .amount(signedAmount)
                         .build();
-        // step 6 — insert with race condition safety net
+
         try {
             transaction =
                     transactionRepository.save(transaction);
 
         } catch (DataIntegrityViolationException ex) {
 
-            // race condition safe fallback
+
             Transaction existingTransaction =
                     transactionRepository
                             .findByIdempotencyKey(
@@ -113,8 +111,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         return switch (operationId) {
 
-            case 1,2,3 -> amount.abs().negate(); // debit
-            case 4     -> amount.abs();          // credit
+            case 1,2,3 -> amount.abs().negate(); // debit negatives
+            case 4     -> amount.abs();          // credit positives
 
             default ->
                     throw new RuntimeException(
