@@ -33,7 +33,7 @@ class TransactionsControllerTest {
     }
 
     @Test
-    void create_returnsCreatedTransaction() {
+    void create_returnsCreatedTransaction() throws Exception {
         // Arrange — use all-args constructor (Lombok @AllArgsConstructor on
         // TransactionRequest)
         UUID idempotencyKey = UUID.randomUUID();

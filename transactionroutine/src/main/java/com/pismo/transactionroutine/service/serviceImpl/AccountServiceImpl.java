@@ -24,6 +24,7 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findById(accountId)
                 .map(account -> AccountResponse.builder().documentId(account.getDocumentId())
                         .accountId(account.getAccountId())
+                        .creditLimit(account.getCreditLimit())
                         .build());
     }
 
@@ -35,14 +36,15 @@ public class AccountServiceImpl implements AccountService {
             // if yes throw and expection
             throw new DuplicateDocumentIdException(accountCreateRequest.getDocumentId());
         }
-        Account account = new Account();
-        account.setDocumentId(accountCreateRequest.getDocumentId());
 
+        Account account = Account.builder().documentId(accountCreateRequest.getDocumentId())
+                .creditLimit(accountCreateRequest.getCreditLimit()).build();
         Account savedAccount = accountRepository.save(account);
 
         return AccountCreateResponse.builder().
                 accountId(savedAccount.getAccountId()).
                 documentId(savedAccount.getDocumentId()).
+                creditLimit(savedAccount.getCreditLimit()).
                 build();
     }
 

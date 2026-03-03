@@ -5,5 +5,5 @@ import com.pismo.transactionroutine.DTO.TransactionResponse;
 
 public interface TransactionService {
 
-    TransactionResponse create(TransactionRequest request);
+    TransactionResponse create(TransactionRequest request) throws Exception;
 }

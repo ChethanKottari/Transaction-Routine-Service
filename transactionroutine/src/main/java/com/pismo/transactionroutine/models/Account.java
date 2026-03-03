@@ -3,6 +3,8 @@ package com.pismo.transactionroutine.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "ACCOUNT")
 @Data
@@ -18,5 +20,8 @@ public class Account {
 
     @Column(name = "DOCUMENT_ID")
     private String documentId;
+
+    @Column(name= "CREDIT_LIMIT")
+    private BigDecimal creditLimit;
 
 }

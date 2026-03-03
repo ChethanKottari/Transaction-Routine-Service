@@ -4,6 +4,7 @@ import com.pismo.transactionroutine.DTO.TransactionRequest;
 import com.pismo.transactionroutine.DTO.TransactionResponse;
 import com.pismo.transactionroutine.Enum.OperationTypeMapper;
 import com.pismo.transactionroutine.exception.AccountNotFoundException;
+import com.pismo.transactionroutine.exception.InvalidOperationTypeException;
 import com.pismo.transactionroutine.models.Account;
 import com.pismo.transactionroutine.models.Transaction;
 import com.pismo.transactionroutine.repository.AccountRepository;
@@ -25,7 +26,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountRepository accountRepository;
 
     @Transactional
-    public TransactionResponse create(TransactionRequest request) {
+    public TransactionResponse create(TransactionRequest request) throws Exception {
 
         //  idempotency check
         Optional<Transaction> existing =
@@ -43,20 +44,27 @@ public class TransactionServiceImpl implements TransactionService {
                         new AccountNotFoundException(
                                 request.getAccountId()));
 
-
-
         int operationId =
                 OperationTypeMapper
                         .fromString(
                                 request.getOperationType())
                         .getId();
 
-
         BigDecimal signedAmount =
                 applySign(
                         request.getAmount(),
                         operationId);
 
+        // updating the credit limit
+        if(operationId <= 3){
+            if(account.getCreditLimit().compareTo(signedAmount.abs())<0){
+                throw new InvalidOperationTypeException("credit limit is low");
+            }
+        }
+
+        Account accountLocked = accountRepository.getAccountWithLock(request.getAccountId());
+
+        accountRepository.updateAccontCreditLimit(account.getCreditLimit().add(signedAmount),account.getAccountId());
 
 
         Transaction transaction =
@@ -74,7 +82,6 @@ public class TransactionServiceImpl implements TransactionService {
                     transactionRepository.save(transaction);
 
         } catch (DataIntegrityViolationException ex) {
-
 
             Transaction existingTransaction =
                     transactionRepository

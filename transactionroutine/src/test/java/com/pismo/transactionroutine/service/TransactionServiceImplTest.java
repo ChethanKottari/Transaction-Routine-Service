@@ -43,7 +43,7 @@ class TransactionServiceImplTest {
     // ---------- create — new transaction ----------
 
     @Test
-    void create_savesAndReturnsNewTransaction() {
+    void create_savesAndReturnsNewTransaction() throws Exception {
         // Arrange
         UUID idempotencyKey = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
@@ -91,7 +91,7 @@ class TransactionServiceImplTest {
     // ---------- create — idempotent duplicate ----------
 
     @Test
-    void create_returnsCachedResponse_whenIdempotencyKeyExists() {
+    void create_returnsCachedResponse_whenIdempotencyKeyExists() throws Exception {
         // Arrange
         UUID idempotencyKey = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
@@ -148,7 +148,7 @@ class TransactionServiceImplTest {
     // ---------- create — credit voucher (positive amount) ----------
 
     @Test
-    void create_appliesPositiveAmount_forCreditVoucher() {
+    void create_appliesPositiveAmount_forCreditVoucher() throws Exception {
         // Arrange
         UUID idempotencyKey = UUID.randomUUID();
 
